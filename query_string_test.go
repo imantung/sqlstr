@@ -103,6 +103,28 @@ func TestQueryString_TableNames(t *testing.T) {
 		ON table1.column_name = table2.column_name;`,
 			[]string{"table1", "table2"},
 		},
+		{
+			`SELECT column_name(s)
+		FROM table1
+		LEFT JOIN table2
+		ON table1.column_name = table2.column_name;`,
+			[]string{"table1", "table2"},
+		},
+		{
+			`UPDATE Customers
+SET ContactName = 'Alfred Schmidt', City= 'Frankfurt'
+WHERE CustomerID = 1;`,
+			[]string{"Customers"},
+		},
+		{
+			`DELETE FROM Customers;`,
+			[]string{"Customers"},
+		},
+		{
+			`INSERT INTO Customers(CustomerName, ContactName, Address, City, PostalCode, Country)
+VALUES ('Cardinal', 'Tom B. Erichsen', 'Skagen 21', 'Stavanger', '4006', 'Norway');`,
+			[]string{"Customers"},
+		},
 	}
 
 	for _, tt := range testcase {

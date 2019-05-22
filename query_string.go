@@ -35,6 +35,63 @@ func (p QueryString) AfterAll(word string) (atAfters []string) {
 	return
 }
 
+// TableNames of Query
+func (p QueryString) TableNames() (names []string) {
+	firstSyntax := p.lowered[:strings.IndexRune(p.lowered, ' ')]
+
+	switch firstSyntax {
+	case "update":
+		names = append(names, p.After("update"))
+		return
+	case "insert":
+		index := regexp.MustCompile("insert(.*?)into").FindStringIndex(p.lowered)
+		names = append(names, p.after(index[1]))
+		return
+	case "delete":
+		index := regexp.MustCompile("delete(.*?)from").FindStringIndex(p.lowered)
+		names = append(names, p.after(index[1]))
+		return
+	}
+
+	names = append(names, p.tableNamesByFROM()...)
+	names = append(names, p.AfterAll("join")...)
+
+	return
+}
+
+func (p QueryString) tableNamesByFROM() (names []string) {
+	indices := regexp.MustCompile("from(.*?)where|from(.*?)left|from(.*?)right|from(.*?)inner|from(.*?)outer|from(.*?)full|from(.*?)join|from(.*?);|from(.*?)$").
+		FindAllStringIndex(p.lowered, -1)
+
+	for _, index := range indices {
+		fromStmt := p.lowered[index[0]:index[1]]
+		lastSyntax := fromStmt[strings.LastIndex(fromStmt, " ")+1:]
+
+		var tableStmt string
+		if lastSyntax == "from" || lastSyntax == "where" || lastSyntax == "left" ||
+			lastSyntax == "right" || lastSyntax == "join" || lastSyntax == "inner" ||
+			lastSyntax == "outer" || lastSyntax == "full" {
+			tableStmt = p.query[index[0]+len("from")+1 : index[1]-len(lastSyntax)-1]
+		} else {
+			tableStmt = p.query[index[0]+len("from")+1:]
+		}
+
+		for _, field := range strings.Split(tableStmt, ",") {
+			names = append(names, cleanField(field))
+		}
+	}
+	return
+}
+
+func cleanField(field string) string {
+	field = strings.TrimSpace(field)
+	lastRune := field[len(field)-1]
+	if lastRune == ';' {
+		field = field[:len(field)-1]
+	}
+	return field
+}
+
 func (p QueryString) after(iWord int) (atAfter string) {
 	iAfter := 0
 
@@ -55,51 +112,4 @@ func (p QueryString) after(iWord int) (atAfter string) {
 	}
 
 	return
-
-}
-
-func (p QueryString) TableNames() (names []string) {
-
-	firstSyntax := p.lowered[:strings.IndexRune(p.lowered, ' ')]
-
-	switch firstSyntax {
-	case "update":
-	case "insert":
-	case "delete":
-	}
-
-	names = append(names, p.tableNamesByFROM()...)
-	names = append(names, p.AfterAll("join")...)
-
-	return
-}
-
-func (p QueryString) tableNamesByFROM() (names []string) {
-	indices := regexp.MustCompile("from(.*?)where|from(.*?)left|from(.*?)right|from(.*?)inner|from(.*?)outer|from(.*?)full|from(.*?)join|from(.*?);|from(.*?)$").
-		FindAllStringIndex(p.lowered, -1)
-
-	for _, index := range indices {
-
-		for _, field := range strings.Fields(p.query[index[0]:index[1]]) {
-			loweredField := strings.ToLower(field)
-			if loweredField == "from" || loweredField == "where" || loweredField == "left" ||
-				loweredField == "right" || loweredField == "join" || loweredField == "inner" ||
-				loweredField == "outer" || loweredField == "full" {
-				continue
-			}
-			names = append(names, cleanField(field))
-		}
-	}
-
-	return
-}
-
-func cleanField(field string) string {
-	field = strings.TrimSpace(field)
-	lastRune := field[len(field)-1]
-	if lastRune == ';' || lastRune == ',' {
-		field = field[:len(field)-1]
-	}
-
-	return field
 }
