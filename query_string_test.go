@@ -98,22 +98,22 @@ func TestQueryString_TableNames(t *testing.T) {
 		},
 		{
 			`SELECT column_name(s)
-		FROM table1
-		LEFT JOIN table2
-		ON table1.column_name = table2.column_name;`,
+			FROM table1
+			LEFT JOIN table2
+			ON table1.column_name = table2.column_name;`,
 			[]string{"table1", "table2"},
 		},
 		{
 			`SELECT column_name(s)
-		FROM table1
-		LEFT JOIN table2
-		ON table1.column_name = table2.column_name;`,
+			FROM table1
+			LEFT JOIN table2
+			ON table1.column_name = table2.column_name;`,
 			[]string{"table1", "table2"},
 		},
 		{
 			`UPDATE Customers
-SET ContactName = 'Alfred Schmidt', City= 'Frankfurt'
-WHERE CustomerID = 1;`,
+			SET ContactName = 'Alfred Schmidt', City= 'Frankfurt'
+			WHERE CustomerID = 1;`,
 			[]string{"Customers"},
 		},
 		{
@@ -122,7 +122,7 @@ WHERE CustomerID = 1;`,
 		},
 		{
 			`INSERT INTO Customers(CustomerName, ContactName, Address, City, PostalCode, Country)
-VALUES ('Cardinal', 'Tom B. Erichsen', 'Skagen 21', 'Stavanger', '4006', 'Norway');`,
+			VALUES ('Cardinal', 'Tom B. Erichsen', 'Skagen 21', 'Stavanger', '4006', 'Norway');`,
 			[]string{"Customers"},
 		},
 		{
@@ -133,6 +133,10 @@ VALUES ('Cardinal', 'Tom B. Erichsen', 'Skagen 21', 'Stavanger', '4006', 'Norway
 			OUTER JOIN table5 ON table1.id = table5.id
 			WHERE true`,
 			[]string{"table1", "table2", "table3", "table4", "table5"},
+		},
+		{
+			"SELECT * FROM table1 t1, table2 AS t2, table3 as t3 JOIN table4 as t4 on t1.id = t4.id;",
+			[]string{"table1", "table2", "table3", "table4"},
 		},
 	}
 

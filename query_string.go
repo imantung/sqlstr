@@ -41,15 +41,15 @@ func (p QueryString) TableNames() (names []string) {
 
 	switch firstSyntax {
 	case "update":
-		names = append(names, p.After("update"))
+		names = append(names, cleanName(p.After("update")))
 		return
 	case "insert":
 		index := regexp.MustCompile("insert(.*?)into").FindStringIndex(p.lowered)
-		names = append(names, p.after(index[1]))
+		names = append(names, cleanName(p.after(index[1])))
 		return
 	case "delete":
 		index := regexp.MustCompile("delete(.*?)from").FindStringIndex(p.lowered)
-		names = append(names, p.after(index[1]))
+		names = append(names, cleanName(p.after(index[1])))
 		return
 	}
 
@@ -76,20 +76,21 @@ func (p QueryString) tableNamesByFROM() (names []string) {
 			tableStmt = p.query[index[0]+len("from")+1:]
 		}
 
-		for _, field := range strings.Split(tableStmt, ",") {
-			names = append(names, cleanField(field))
+		for _, name := range strings.Split(tableStmt, ",") {
+			names = append(names, cleanName(name))
 		}
 	}
 	return
 }
 
-func cleanField(field string) string {
-	field = strings.TrimSpace(field)
-	lastRune := field[len(field)-1]
+func cleanName(name string) string {
+	name = strings.Fields(name)[0]
+	name = strings.TrimSpace(name)
+	lastRune := name[len(name)-1]
 	if lastRune == ';' {
-		field = field[:len(field)-1]
+		name = name[:len(name)-1]
 	}
-	return field
+	return name
 }
 
 func (p QueryString) after(iWord int) (atAfter string) {
