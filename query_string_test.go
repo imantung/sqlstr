@@ -125,6 +125,15 @@ WHERE CustomerID = 1;`,
 VALUES ('Cardinal', 'Tom B. Erichsen', 'Skagen 21', 'Stavanger', '4006', 'Norway');`,
 			[]string{"Customers"},
 		},
+		{
+			`SELECT * FROM table1 
+			RIGHT JOIN table2 ON table1.id = table2.id 
+			LEFT JOIN table3 ON table1.id = table3.id 
+			INNER JOIN table4 ON table1.id = table4.id 
+			OUTER JOIN table5 ON table1.id = table5.id
+			WHERE true`,
+			[]string{"table1", "table2", "table3", "table4", "table5"},
+		},
 	}
 
 	for _, tt := range testcase {

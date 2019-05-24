@@ -60,7 +60,7 @@ func (p QueryString) TableNames() (names []string) {
 }
 
 func (p QueryString) tableNamesByFROM() (names []string) {
-	indices := regexp.MustCompile("from(.*?)where|from(.*?)left|from(.*?)right|from(.*?)inner|from(.*?)outer|from(.*?)full|from(.*?)join|from(.*?);|from(.*?)$").
+	indices := regexp.MustCompile("from(.*?)(left|inner|right|outer|full)|from(.*?)join|from(.*?)where|from(.*?);|from(.*?)$").
 		FindAllStringIndex(p.lowered, -1)
 
 	for _, index := range indices {
