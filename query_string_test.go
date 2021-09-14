@@ -79,6 +79,10 @@ func TestQueryString_TableNames(t *testing.T) {
 		tableNames []string
 	}{
 		{
+			"SELECT * FROM `table1`, `table2`, `table3` WHERE true;",
+			[]string{"table1", "table2", "table3"},
+		},
+		{
 			"SELECT * FROM table1, table2, table3 WHERE true;",
 			[]string{"table1", "table2", "table3"},
 		},
