@@ -86,6 +86,7 @@ func (p QueryString) tableNamesByFROM() (names []string) {
 func cleanName(name string) string {
 	name = strings.Fields(name)[0]
 	name = strings.TrimSpace(name)
+	name = strings.Trim(name,"`")
 	lastRune := name[len(name)-1]
 	if lastRune == ';' {
 		name = name[:len(name)-1]
